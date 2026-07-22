@@ -61,10 +61,3 @@ export async function loadConfig(deps: LoadConfigDeps): Promise<VozPcConfig> {
     throw error;
   }
 }
-
-export function getAppDataDir(homeDir: string, platform: NodeJS.Platform): string {
-  if (platform === "win32") {
-    return join(homeDir, "AppData", "Roaming", "voz-pc");
-  }
-  return join(homeDir, ".config", "voz-pc");
-}

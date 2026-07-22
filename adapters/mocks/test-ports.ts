@@ -73,6 +73,17 @@ export function createMockStt(transcript: string): SttPort {
   };
 }
 
+export function createMockSttSequence(transcripts: string[]): SttPort {
+  let index = 0;
+  return {
+    async transcribe() {
+      const transcript = transcripts[index] ?? transcripts[transcripts.length - 1] ?? "";
+      index += 1;
+      return transcript;
+    },
+  };
+}
+
 export function createMockTimer(): TimerPort & {
   advance: (ms: number) => Promise<void>;
 } {

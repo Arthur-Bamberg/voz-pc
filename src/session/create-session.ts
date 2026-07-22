@@ -59,38 +59,63 @@ export function createSession(deps: SessionDeps): Session {
   }
 
   async function onPttDown(): Promise<void> {
-    if (state !== "idle") return;
-    state = "recording";
-    await deps.audio.start();
+    if (state === "idle") {
+      state = "recording";
+      await deps.audio.start();
+      return;
+    }
+
+    if (state === "awaiting_confirmation") {
+      state = "recording_confirmation";
+      await deps.audio.start();
+    }
   }
 
   async function onPttUp(): Promise<void> {
-    if (state !== "recording") return;
+    if (state !== "recording" && state !== "recording_confirmation") return;
+
+    const wasConfirming = state === "recording_confirmation";
     const audio = await deps.audio.stop();
     const text = await deps.stt.transcribe(audio);
-    await handleTranscript(text);
+
+    if (wasConfirming) {
+      state = "awaiting_confirmation";
+      const response = parseConfirmation(text);
+      if (response === "confirm") {
+        await confirmLaunch();
+      } else if (response === "cancel") {
+        await cancelLaunch();
+      }
+      return;
+    }
+
+    await handleOpenAppTranscript(text);
+  }
+
+  async function handleOpenAppTranscript(text: string): Promise<void> {
+    const intent = parseOpenApp(text, deps.config.aliases);
+
+    if (!intent || !isAllowed(intent.appId)) {
+      await deps.tts.speak(MESSAGES.unknown);
+      state = "idle";
+      return;
+    }
+
+    pendingAppId = intent.appId;
+    state = "awaiting_confirmation";
+    await deps.tts.speak(MESSAGES.confirmation(getLabel(intent.appId)));
+
+    clearConfirmationTimer = deps.timer.setTimeout(async () => {
+      if (state === "awaiting_confirmation") {
+        await deps.tts.speak(MESSAGES.cancelled);
+        await resetToIdle();
+      }
+    }, deps.config.confirmationTimeoutMs);
   }
 
   async function handleTranscript(text: string): Promise<void> {
     if (state === "recording") {
-      const intent = parseOpenApp(text, deps.config.aliases);
-
-      if (!intent || !isAllowed(intent.appId)) {
-        await deps.tts.speak(MESSAGES.unknown);
-        state = "idle";
-        return;
-      }
-
-      pendingAppId = intent.appId;
-      state = "awaiting_confirmation";
-      await deps.tts.speak(MESSAGES.confirmation(getLabel(intent.appId)));
-
-      clearConfirmationTimer = deps.timer.setTimeout(async () => {
-        if (state === "awaiting_confirmation") {
-          await deps.tts.speak(MESSAGES.cancelled);
-          await resetToIdle();
-        }
-      }, deps.config.confirmationTimeoutMs);
+      await handleOpenAppTranscript(text);
       return;
     }
 
@@ -116,7 +141,7 @@ export function createSession(deps: SessionDeps): Session {
     if (result.ok) {
       await deps.tts.speak(MESSAGES.success(label));
     } else {
-      await deps.tts.speak(MESSAGES.unknown);
+      await deps.tts.speak(MESSAGES.launchFailed(label));
     }
   }
 

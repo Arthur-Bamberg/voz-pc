@@ -57,5 +57,6 @@ describe("AppLauncher adapters", () => {
     const launcher = createLinuxAppLauncher(config, async () => ({ ok: true }));
     const result = await launcher.launch("spotify");
     expect(result.ok).toBe(false);
+    expect(result.error).toBe("App não está na allowlist: spotify");
   });
 });

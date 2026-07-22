@@ -39,7 +39,7 @@ export function createAppLauncher(options: CreateAppLauncherOptions): AppLaunche
     async launch(appId) {
       const spec = resolveLaunchSpec(options.config, appId, options.platform);
       if (!spec) {
-        return { ok: false, error: `App not in allowlist: ${appId}` };
+        return { ok: false, error: `App não está na allowlist: ${appId}` };
       }
 
       const args = spec.args ?? [];
