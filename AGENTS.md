@@ -114,6 +114,8 @@ voz-pc/
 
 Preferir pool First-party (Composer / Grok). E2E sem chamar LLM real.
 
+Skills versionadas em `.cursor/skills/` (Cloud Agent e local): `feature-loop`, `plan-feature-loop`, `tdd`, `review`, `grill-with-docs`. Invocar com `/feature-loop` ou `/plan-feature-loop`.
+
 ## Glossário (resumo)
 
 Ver `CONTEXT.md`. Termos canônicos: **Comando de voz**, **Intent**, **Allowlist** (IDs lógicos), **Confirmação**, **PTT**, **Adapter de OS**, **Sidecar**, **Diagnóstico**.
