@@ -1,0 +1,46 @@
+{
+  "locale": "pt-BR",
+  "confirmationTimeoutMs": 30000,
+  "whisper": {
+    "model": "base"
+  },
+  "hotkeys": {
+    "ptt": "Ctrl+Shift+Space",
+    "confirm": "Enter",
+    "cancel": "Esc"
+  },
+  "allowlist": {
+    "chrome": {
+      "label": "Chrome",
+      "windows": { "command": "chrome" },
+      "linux": { "command": "google-chrome" }
+    },
+    "firefox": {
+      "label": "Firefox",
+      "windows": { "command": "firefox" },
+      "linux": { "command": "firefox" }
+    },
+    "files": {
+      "label": "Arquivos",
+      "windows": { "command": "explorer" },
+      "linux": { "command": "nautilus" }
+    },
+    "terminal": {
+      "label": "Terminal",
+      "windows": { "command": "wt" },
+      "linux": { "command": "gnome-terminal" }
+    },
+    "calculator": {
+      "label": "Calculadora",
+      "windows": { "command": "calc" },
+      "linux": { "command": "gnome-calculator" }
+    }
+  },
+  "aliases": {
+    "chrome": ["chrome", "google chrome", "google"],
+    "firefox": ["firefox", "mozilla"],
+    "files": ["arquivos", "arquivo", "pastas", "pasta", "explorer", "nautilus"],
+    "terminal": ["terminal", "console"],
+    "calculator": ["calculadora", "calc"]
+  }
+}
