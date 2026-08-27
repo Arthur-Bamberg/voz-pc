@@ -11,7 +11,7 @@ Binários auxiliares empacotados por target (Windows / Linux):
 
 - **Não commitar** modelos grandes (`.gguf`, `.onnx`) nem binários compilados.
 - Download na 1ª execução ou via CI do target (ver D28 em `decisions.md`).
-- Adapters TypeScript: `adapters/shared/stt-whisper.ts`, `adapters/shared/tts-piper.ts` (stubs até integração Tauri).
+- Infra TypeScript: `src/infra/shared/stt-whisper.ts`, `src/infra/shared/tts-piper.ts` (stubs até integração Tauri).
 
 ## Layout esperado (por target)
 

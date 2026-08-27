@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseConfirmation } from "../../src/parser/confirmation.js";
+import { parseConfirmation } from "../../../src/domain/parser/confirmation.js";
 
 describe("parseConfirmation", () => {
   it("parses 'sim' as confirm", () => {

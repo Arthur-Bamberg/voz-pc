@@ -1,4 +1,4 @@
-import type { ConfirmationResponse } from "../domain/intent.js";
+import type { ConfirmationResponse } from "../intent.js";
 
 const CONFIRM_ALIASES = ["sim", "confirmo", "pode abrir", "ok", "positivo", "isso"];
 const CANCEL_ALIASES = ["nao", "não", "cancela", "cancelar", "negativo", "para"];

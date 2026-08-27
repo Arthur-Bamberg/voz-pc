@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { join } from "node:path";
-import { getAppDataDir as getWindowsAppDataDir } from "../../adapters/windows/paths.js";
-import { getAppDataDir as getLinuxAppDataDir } from "../../adapters/linux/paths.js";
+import { getAppDataDir as getWindowsAppDataDir } from "../../src/infra/windows/paths.js";
+import { getAppDataDir as getLinuxAppDataDir } from "../../src/infra/linux/paths.js";
 
 describe("getAppDataDir adapters", () => {
   it("resolves Windows app data dir", () => {

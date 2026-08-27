@@ -6,10 +6,11 @@ Agent de desktop por voz que abre apps e confirma por fala. Windows + Fedora, m�
 - Para agentes: [`AGENTS.md`](./AGENTS.md)
 - Glossário: [`CONTEXT.md`](./CONTEXT.md)
 - Decisões MVP-A fase 1: [`.scratch/feature-loop/mvp-a-abrir-confirmar/decisions.md`](./.scratch/feature-loop/mvp-a-abrir-confirmar/decisions.md)
+- Arquitetura: Clean (`domain` / `application` / `infra`) — [`docs/adr/0001-clean-architecture-layout.md`](./docs/adr/0001-clean-architecture-layout.md)
 
 ## Status
 
-**MVP-A fase 1 — core TypeScript implementado** (parser, config, FSM/session, ports, adapters Win/Linux, e2e mockado). Tauri 2 tray stub em `src-tauri/` (single-instance anotado na config; plugin a conectar na integração). Sidecar stubs (`stt-whisper`, `tts-piper`) e log rotativo mínimo em `src/diag/`.
+**MVP-A fase 1 — core TypeScript** em Clean Architecture (parser + FSM no domain, `createSession` na application, Win/Linux + stubs em infra, e2e mockado). Tauri 2 tray stub em `src-tauri/`.
 
 ## Comandos
 
@@ -21,21 +22,21 @@ pnpm test:e2e
 pnpm typecheck
 ```
 
-## API pública (core)
+## API pública
 
-- `createSession(deps)` — orquestra FSM: PTT → STT → parse → confirmação → launch → TTS
-- `parseOpenApp(text, aliases?)` — intent `open_app` a partir de frases PT-BR
-- `parseConfirmation(text)` — `confirm` | `cancel`
-- `loadConfig({ appDataDir, readFile? })` — merge `config.default.json` + user config (sem conhecimento de OS)
-- `getAppDataDir(homeDir, platform)` — re-export de `adapters/shared/paths` (Win/Linux separados)
-- `createWindowsAppLauncher(config)` / `createLinuxAppLauncher(config)` — resolve ID lógico → spawn
+- `createSession(deps)` — use case: PTT → STT → parse → confirmação → launch → TTS
+- `parseOpenApp` / `parseConfirmation` — domain
+- `loadConfig({ appDataDir })` — infra (merge default + user)
+- `getAppDataDir` / launchers Win+Linux — infra
 
 ## Estrutura
 
 ```
-src/           # core TypeScript (FSM, parser, ports, config)
-adapters/      # windows/*, linux/*, mocks/
-e2e/           # caminho feliz com ports mockados
-src-tauri/     # Tauri 2 tray stub
+src/domain/         # Intent, FSM, parser, ports, config types
+src/application/    # createSession
+src/infra/          # windows/*, linux/*, shared, mocks, config, diag
+src/presentation/   # fachada TS → application
+src-tauri/          # presentation nativa (tray)
+tests/ + e2e/
 config.default.json
 ```

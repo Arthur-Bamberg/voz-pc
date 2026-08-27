@@ -7,12 +7,12 @@ import type {
   SttPort,
   TimerPort,
   TtsPort,
-} from "../ports/index.js";
-import type { VozPcConfig } from "../config/types.js";
+} from "../domain/ports.js";
+import type { VozPcConfig } from "../domain/config.js";
 import type { SessionState } from "../domain/fsm.js";
 import { MESSAGES } from "../domain/messages.js";
-import { parseOpenApp } from "../parser/open-app.js";
-import { parseConfirmation } from "../parser/confirmation.js";
+import { parseOpenApp } from "../domain/parser/open-app.js";
+import { parseConfirmation } from "../domain/parser/confirmation.js";
 
 export type SessionDeps = {
   config: VozPcConfig;

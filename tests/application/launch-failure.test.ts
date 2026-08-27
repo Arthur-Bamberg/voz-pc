@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createSession } from "../../src/session/create-session.js";
+import { createSession } from "../../src/application/create-session.js";
 import {
   createMockAudio,
   createMockClock,
@@ -9,9 +9,9 @@ import {
   createMockTts,
   flushAsync,
   loadTestConfig,
-} from "../../adapters/mocks/test-ports.js";
+} from "../../src/infra/mocks/test-ports.js";
 import { MESSAGES } from "../../src/domain/messages.js";
-import type { AppLauncherPort } from "../../src/ports/index.js";
+import type { AppLauncherPort } from "../../src/domain/ports.js";
 
 describe("createSession launch failure", () => {
   it("speaks launchFailed when launcher returns not ok", async () => {

@@ -1,5 +1,5 @@
-import type { AppLaunchSpec, VozPcConfig } from "../../src/config/types.js";
-import type { AppLauncherPort } from "../../src/ports/index.js";
+import type { AppLaunchSpec, VozPcConfig } from "../../domain/config.js";
+import type { AppLauncherPort } from "../../domain/ports.js";
 
 export type SpawnFn = (
   command: string,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadConfig } from "../../src/config/load-config.js";
+import { loadConfig } from "../../src/infra/config/load-config.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 

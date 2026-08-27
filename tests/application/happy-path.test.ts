@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { createSession } from "../../src/session/create-session.js";
+import { createSession } from "../../src/application/create-session.js";
 import {
   createTestPorts,
   flushAsync,
   loadTestConfig,
-} from "../../adapters/mocks/test-ports.js";
+} from "../../src/infra/mocks/test-ports.js";
 import { MESSAGES } from "../../src/domain/messages.js";
 
 describe("createSession happy path", () => {

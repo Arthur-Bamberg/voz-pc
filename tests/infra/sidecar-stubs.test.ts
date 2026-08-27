@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createWhisperStt } from "../../adapters/shared/stt-whisper.js";
-import { createPiperTts } from "../../adapters/shared/tts-piper.js";
+import { createWhisperStt } from "../../src/infra/shared/stt-whisper.js";
+import { createPiperTts } from "../../src/infra/shared/tts-piper.js";
 
 describe("sidecar stubs", () => {
   it("whisper STT stub throws not wired", async () => {

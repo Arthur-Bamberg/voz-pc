@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseOpenApp } from "../../src/parser/open-app.js";
+import { parseOpenApp } from "../../../src/domain/parser/open-app.js";
 
 describe("parseOpenApp", () => {
   it("parses 'abrir chrome' into open_app intent", () => {

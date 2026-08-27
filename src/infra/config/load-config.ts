@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { VozPcConfig } from "./types.js";
+import type { VozPcConfig } from "../../domain/config.js";
 
 export type FileReader = (path: string) => Promise<string>;
 

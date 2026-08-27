@@ -1,4 +1,4 @@
-import type { OpenAppIntent } from "../domain/intent.js";
+import type { OpenAppIntent } from "../intent.js";
 
 const OPEN_VERBS = ["abrir", "abre", "abra", "abramos"];
 

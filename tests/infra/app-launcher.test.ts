@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { resolveLaunchSpec } from "../../adapters/shared/app-launcher.js";
-import { createWindowsAppLauncher } from "../../adapters/windows/app-launcher.js";
-import { createLinuxAppLauncher } from "../../adapters/linux/app-launcher.js";
-import { loadTestConfig } from "../../adapters/mocks/test-ports.js";
+import { resolveLaunchSpec } from "../../src/infra/shared/app-launcher.js";
+import { createWindowsAppLauncher } from "../../src/infra/windows/app-launcher.js";
+import { createLinuxAppLauncher } from "../../src/infra/linux/app-launcher.js";
+import { loadTestConfig } from "../../src/infra/mocks/test-ports.js";
 
 describe("resolveLaunchSpec", () => {
   it("resolves windows commands from config", async () => {

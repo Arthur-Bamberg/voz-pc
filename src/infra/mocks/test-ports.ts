@@ -7,8 +7,8 @@ import type {
   SttPort,
   TimerPort,
   TtsPort,
-} from "../../src/ports/index.js";
-import type { VozPcConfig } from "../../src/config/types.js";
+} from "../../domain/ports.js";
+import type { VozPcConfig } from "../../domain/config.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 

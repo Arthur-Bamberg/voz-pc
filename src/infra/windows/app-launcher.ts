@@ -1,5 +1,5 @@
 import { createAppLauncher } from "../shared/app-launcher.js";
-import type { VozPcConfig } from "../../src/config/types.js";
+import type { VozPcConfig } from "../../domain/config.js";
 import type { SpawnFn } from "../shared/app-launcher.js";
 
 export function createWindowsAppLauncher(

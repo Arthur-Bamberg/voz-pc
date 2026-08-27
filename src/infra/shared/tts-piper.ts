@@ -1,4 +1,4 @@
-import type { TtsPort } from "../../src/ports/index.js";
+import type { TtsPort } from "../../domain/ports.js";
 
 const NOT_WIRED = "Piper TTS sidecar not wired — use mocked TtsPort in tests";
 

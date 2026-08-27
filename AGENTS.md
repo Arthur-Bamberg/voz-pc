@@ -47,26 +47,36 @@ Doc de produto: Notion *MVPs — IA por voz que age no computador*.
 | Instância | Single-instance |
 | Hotkeys default | PTT `Ctrl+Shift+Space`; confirmar `Enter`; cancelar `Esc` (**só** no estado “aguardando confirmação”) |
 
-## Arquitetura-alvo (mínimo de adaptação OS)
+## Arquitetura (Clean — alinhada ao orquestrador)
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Core TS: FSM, parser, aliases, config      │  ← 100% compartilhado
+│  domain: Intent, FSM, parser, ports, config │
+│  application: createSession (use case)      │
 └──────────────────┬──────────────────────────┘
-                   │ ports
+                   │ ports (domain)
      ┌─────────────┼─────────────┐
      ▼             ▼             ▼
-  Stt (shared     Tts (shared   AppLauncher
-  whisper.cpp)    piper)        windows/* | linux/*
+  infra/shared   infra/shared  infra/windows|linux
+  (Whisper)      (Piper)       (AppLauncher, paths)
      ▲             ▲
-     └──── cpal + hotkeys (Tauri) ────┘
+     └──── src-tauri (presentation nativa: cpal + hotkeys) ────┘
 ```
 
-**Regra de ouro:** só pode divergir entre OS:
+### Dependency rule
+
+- `presentation` → `application` → `domain`
+- `infra` implementa interfaces definidas em `domain`
+- `domain` nunca importa `infra`, `application` ou `presentation`
+- `application` depende só de tipos/ports do `domain`
+
+**Regra de ouro (OS):** só pode divergir entre OS em `infra/windows` e `infra/linux`:
 - `AppLauncher` (resolve ID → path/desktop + spawn)
 - helpers de path / autostart / packaging (1.1)
 
-STT, TTS, áudio, FSM, parser = **shared**. Zero Win32/SAPI no core.
+STT, TTS, áudio, FSM, parser = **shared**. Zero Win32/SAPI em `domain`/`application`.
+
+ADR: `docs/adr/0001-clean-architecture-layout.md`
 
 ### Allowlist inicial (IDs lógicos)
 
@@ -79,27 +89,26 @@ Apps da mãe (WhatsApp etc.) entram na fase 1.1 se necessário.
 
 Confirmação: híbrido fala (`sim`/`não` + aliases) **e** hotkeys.
 
-## Estrutura esperada do código (ainda a criar na impl)
-
-Orientação — ajustar nomes se o scaffold Tauri exigir, mas preservar a ideia:
+## Estrutura do código
 
 ```
 voz-pc/
 ├── AGENTS.md
 ├── CONTEXT.md
-├── package.json                 # pnpm workspace / app
-├── src/                         # core TypeScript
-│   ├── domain/                  # Intent, Allowlist, FSM
-│   ├── parser/
-│   ├── ports/                   # interfaces Stt, Tts, AppLauncher, Hotkeys
-│   └── config/
-├── src-tauri/                   # Tauri 2 + cpal + hotkeys + single-instance
-│   └── sidecars/                # whisper.cpp, piper (por target)
-├── adapters/
-│   ├── windows/                 # AppLauncher (+ path)
-│   └── linux/                   # AppLauncher (+ path)
+├── docs/adr/
+├── package.json
+├── src/
+│   ├── domain/          # entidades, parser, config types, ports
+│   ├── application/     # use cases (createSession)
+│   ├── infra/           # windows/*, linux/*, shared, mocks, config loader, diag
+│   ├── presentation/    # fachada TS → application (shell nativo em src-tauri)
+│   └── index.ts         # API pública
+├── src-tauri/           # Tauri 2 tray + cpal/hotkeys/single-instance
+│   └── sidecars/        # whisper.cpp, piper (por target)
+├── tests/               # espelha domain | application | infra
+├── e2e/
 ├── config.default.json
-└── .scratch/feature-loop/…      # decisões / planos
+└── .scratch/feature-loop/…
 ```
 
 ## Pipeline de trabalho (feature-loop)
@@ -130,7 +139,7 @@ Ver `CONTEXT.md`. Termos canônicos: **Comando de voz**, **Intent**, **Allowlist
 - Electron
 - Telemetria cloud
 - Playwright em UI Tauri como e2e principal
-- Hardcodar `%AppData%` ou paths Windows no core
+- Hardcodar `%AppData%` ou paths Windows em `domain` / `application`
 - Commitar secrets, modelos Whisper/Piper grandes (preferir download 1ª run / LFS policy depois)
 
 ## Critérios de sucesso (fase 1)

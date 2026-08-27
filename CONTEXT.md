@@ -25,8 +25,12 @@ Modo de captura em que o áudio só é gravado enquanto a hotkey de gravação e
 _Avoid_: always-on, wake word (fora do MVP-A)
 
 **Adapter de OS**:
-Implementação fina de portas que **precisam** divergir (`AppLauncher`, paths, autostart/packaging). STT/TTS/áudio/FSM são compartilhados.
-_Avoid_: service, driver, fork do core por plataforma
+Implementação fina, em `infra`, de ports do `domain` que **precisam** divergir (`AppLauncher`, paths, autostart/packaging). STT/TTS/áudio/FSM ficam compartilhados (ports no domain; wiring em infra/shared ou Tauri).
+_Avoid_: service, driver, fork do domain/application por plataforma, pasta `adapters/` na raiz
+
+**Port**:
+Interface no `domain` que isola o application de detalhes de I/O (Stt, Tts, AppLauncher, Hotkeys, AudioCapture, Timer).
+_Avoid_: service interface espalhada em infra, contrato só em presentation
 
 **Sidecar**:
 Binário auxiliar empacotado com o app (ex.: whisper.cpp, piper), mesmo papel em Windows e Fedora.

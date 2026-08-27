@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRotatingLog } from "../../src/diag/rotating-log.js";
+import { createRotatingLog } from "../../src/infra/diag/rotating-log.js";
 
 describe("createRotatingLog", () => {
   it("appends lines and rotates when max bytes exceeded", async () => {
