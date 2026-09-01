@@ -1,0 +1,3 @@
+# Clean Architecture layout (orquestrador-aligned)
+
+voz-pc adopts the same Clean Architecture folder shape as `orquestrador-ofertas-supermercados/apps/ofertas-scraper`: `domain` (entities + ports), `application` (use cases), `infra` (port implementations), with dependency rule `presentation → application → domain` and `infra` implementing domain ports. Rejected keeping top-level `adapters/` + `src/ports/` (hexagonal naming without the shared Clean dialect) and stuffing the Tauri tray under `src/presentation` (scaffold stays in `src-tauri/`; TS façade in `src/presentation` bridges into application).
