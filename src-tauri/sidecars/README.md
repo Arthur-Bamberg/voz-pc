@@ -11,7 +11,8 @@ Binários auxiliares empacotados por target (Windows / Linux):
 
 - **Não commitar** modelos grandes (`.gguf`, `.onnx`) nem binários compilados.
 - Download na 1ª execução ou via CI do target (ver D28 em `decisions.md`).
-- Infra TypeScript: `src/infra/shared/stt-whisper.ts`, `src/infra/shared/tts-piper.ts` (stubs até integração Tauri).
+- Infra TypeScript: `src/infra/shared/stt-whisper.ts`, `src/infra/shared/tts-piper.ts` (spawn; `pnpm sidecars:ensure` baixa para `~/.config/voz-pc`).
+- Daemon: `pnpm start` — PTT Espaço ou HTTP `127.0.0.1:9847`.
 
 ## Layout esperado (por target)
 

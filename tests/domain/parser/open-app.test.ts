@@ -24,6 +24,11 @@ describe("parseOpenApp", () => {
     expect(parseOpenApp("abrir calculadora")).toEqual({ type: "open_app", appId: "calculator" });
   });
 
+  it("parses Whisper output with trailing punctuation", () => {
+    expect(parseOpenApp("Abrir calculadora.")).toEqual({ type: "open_app", appId: "calculator" });
+    expect(parseOpenApp("abrir o chrome!")).toEqual({ type: "open_app", appId: "chrome" });
+  });
+
   it("returns null for unknown app", () => {
     expect(parseOpenApp("abrir spotify")).toBeNull();
   });

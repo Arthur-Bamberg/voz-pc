@@ -5,16 +5,20 @@ Agent de desktop que interpreta comandos de voz e age no computador, com confirm
 ## Language
 
 **Comando de voz**:
-Texto proveniente do STT (ou injeção de teste) após um push-to-talk.
-_Avoid_: prompt, utterance crua sem passar pelo parser
+Texto proveniente do STT (ou injeção de teste) após um push-to-talk — inclusive na confirmação falada e quando o texto é vazio. Falha do STT e confirmação por hotkey não produzem Comando de voz.
+_Avoid_: prompt, utterance crua sem passar pelo parser, confirmação por tecla, texto inventado após falha do STT
 
 **Intent**:
 Intenção estruturada extraída do comando de voz (no MVP-A: `open_app`).
 _Avoid_: ação genérica, tool call, skill
 
 **Allowlist**:
-Conjunto configurável de **IDs lógicos** de apps que o agent pode lançar (resolvidos por OS).
-_Avoid_: lista negra invertida, busca livre no sistema, path absoluto como identidade do app
+Conjunto configurável de **IDs lógicos** de apps que o agent pode lançar. Cada ID é resolvido para o app **já presente** no OS da usuária; o agent não instala software.
+_Avoid_: lista negra invertida, busca livre no sistema, path absoluto como identidade do app, instalar o app no fluxo de voz
+
+**ID lógico**:
+Nome estável na allowlist (`chrome`, `calculator`) usado no Comando de voz e na Confirmação. Não é o binário, o pacote nem o arquivo `.desktop`.
+_Avoid_: command no PATH, id Flatpak, nome de pacote dnf como identidade falada
 
 **Confirmação**:
 Passo obrigatório em que a usuária aceita ou recusa a intent antes da execução.
@@ -29,7 +33,7 @@ Implementação fina, em `infra`, de ports do `domain` que **precisam** divergir
 _Avoid_: service, driver, fork do domain/application por plataforma, pasta `adapters/` na raiz
 
 **Port**:
-Interface no `domain` que isola o application de detalhes de I/O (Stt, Tts, AppLauncher, Hotkeys, AudioCapture, Timer).
+Interface no `domain` que isola o application de detalhes de I/O (Stt, Tts, AppLauncher, Hotkeys, AudioCapture, Timer, observação do Comando de voz).
 _Avoid_: service interface espalhada em infra, contrato só em presentation
 
 **Sidecar**:

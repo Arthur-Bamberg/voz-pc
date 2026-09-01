@@ -13,27 +13,42 @@
     "chrome": {
       "label": "Chrome",
       "windows": { "command": "chrome" },
-      "linux": { "command": "google-chrome" }
+      "linux": {
+        "command": "google-chrome",
+        "desktop": ["com.google.Chrome", "google-chrome", "google-chrome-stable"]
+      }
     },
     "firefox": {
       "label": "Firefox",
       "windows": { "command": "firefox" },
-      "linux": { "command": "firefox" }
+      "linux": {
+        "command": "firefox",
+        "desktop": ["org.mozilla.firefox", "firefox"]
+      }
     },
     "files": {
       "label": "Arquivos",
       "windows": { "command": "explorer" },
-      "linux": { "command": "nautilus" }
+      "linux": {
+        "command": "nautilus",
+        "desktop": ["org.gnome.Nautilus", "nautilus"]
+      }
     },
     "terminal": {
       "label": "Terminal",
       "windows": { "command": "wt" },
-      "linux": { "command": "gnome-terminal" }
+      "linux": {
+        "command": "gnome-terminal",
+        "desktop": ["org.gnome.Ptyxis", "org.gnome.Terminal", "org.gnome.Console"]
+      }
     },
     "calculator": {
       "label": "Calculadora",
       "windows": { "command": "calc" },
-      "linux": { "command": "gnome-calculator" }
+      "linux": {
+        "command": "gnome-calculator",
+        "desktop": ["org.gnome.Calculator", "gnome-calculator"]
+      }
     }
   },
   "aliases": {

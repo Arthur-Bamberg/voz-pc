@@ -23,7 +23,7 @@ Doc de produto: Notion *MVPs — IA por voz que age no computador*.
 
 | Fase | Objetivo | Inclui | Não inclui |
 |------|----------|--------|------------|
-| **1** (agora) | Validar **custo** do feature-loop e se o pipeline cola | Core + FSM + ports Win+Linux + Whisper + Piper + cpal + Tauri tray + Vitest | NSIS/AppImage polido, autostart, export zip, sessão mãe |
+| **1** (agora) | Validar **custo** do feature-loop e se o pipeline cola | Core + FSM + ports Win+Linux + Whisper + Piper + daemon Node (`pw-record`/`pw-play`, PTT Espaço/HTTP) + Vitest. Tauri tray/cpal ainda stub | NSIS/AppImage polido, autostart, export zip, sessão mãe |
 | **1.1** | Aceite humano / distribuição | Instaladores, autostart, diagnóstico zip, demo na máquina da mãe (Windows) | Escopo B/C |
 
 **Requisito de OS:** Windows **e** Fedora obrigatórios. Fase 1 já traz adapters dos **dois** (D2b=C).
@@ -145,7 +145,7 @@ Ver `CONTEXT.md`. Termos canônicos: **Comando de voz**, **Intent**, **Allowlist
 ## Critérios de sucesso (fase 1)
 
 - 1 caminho feliz e2e local verde **sem** STT/TTS/LLM reais (mocks)
-- Smoke real: gravar PTT → Whisper → parse → Piper → confirm → launch em **Fedora e Windows**
+- Smoke real: `pnpm start` → PTT → Whisper → parse → Piper → confirm → launch no **Fedora** (Windows smoke quando o adapter de áudio nativo existir)
 - Superfície OS limitada aos adapters acima
 
 ## Notion

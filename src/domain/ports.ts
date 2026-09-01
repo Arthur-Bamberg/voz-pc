@@ -2,6 +2,17 @@ export type SttPort = {
   transcribe: (audio: Uint8Array) => Promise<string>;
 };
 
+export type VoiceCommandRole = "open" | "confirmation";
+
+export type VoiceCommand = {
+  text: string;
+  role: VoiceCommandRole;
+};
+
+export type VoiceCommandObserverPort = {
+  observe: (command: VoiceCommand) => void;
+};
+
 export type TtsPort = {
   speak: (text: string) => Promise<void>;
 };

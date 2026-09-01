@@ -3,6 +3,7 @@ export type OsTarget = "windows" | "linux";
 export type AppLaunchSpec = {
   command: string;
   args?: string[];
+  desktop?: string[];
 };
 
 export type AllowlistEntry = {

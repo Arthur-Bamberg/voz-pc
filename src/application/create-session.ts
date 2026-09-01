@@ -7,6 +7,8 @@ import type {
   SttPort,
   TimerPort,
   TtsPort,
+  VoiceCommandObserverPort,
+  VoiceCommandRole,
 } from "../domain/ports.js";
 import type { VozPcConfig } from "../domain/config.js";
 import type { SessionState } from "../domain/fsm.js";
@@ -23,6 +25,7 @@ export type SessionDeps = {
   audio: AudioCapturePort;
   timer: TimerPort;
   clock: ClockPort;
+  voiceCommandObserver?: VoiceCommandObserverPort;
 };
 
 export type Session = {
@@ -58,16 +61,32 @@ export function createSession(deps: SessionDeps): Session {
     state = "idle";
   }
 
+  async function failListen(): Promise<void> {
+    await resetToIdle();
+    await deps.tts.speak(MESSAGES.unknown);
+  }
+
+  async function startCapture(nextState: SessionState): Promise<void> {
+    state = nextState;
+    try {
+      await deps.audio.start();
+    } catch {
+      await failListen();
+    }
+  }
+
+  function observeVoiceCommand(text: string, role: VoiceCommandRole): void {
+    deps.voiceCommandObserver?.observe({ text, role });
+  }
+
   async function onPttDown(): Promise<void> {
     if (state === "idle") {
-      state = "recording";
-      await deps.audio.start();
+      await startCapture("recording");
       return;
     }
 
     if (state === "awaiting_confirmation") {
-      state = "recording_confirmation";
-      await deps.audio.start();
+      await startCapture("recording_confirmation");
     }
   }
 
@@ -75,21 +94,26 @@ export function createSession(deps: SessionDeps): Session {
     if (state !== "recording" && state !== "recording_confirmation") return;
 
     const wasConfirming = state === "recording_confirmation";
-    const audio = await deps.audio.stop();
-    const text = await deps.stt.transcribe(audio);
+    try {
+      const audio = await deps.audio.stop();
+      const text = await deps.stt.transcribe(audio);
+      observeVoiceCommand(text, wasConfirming ? "confirmation" : "open");
 
-    if (wasConfirming) {
-      state = "awaiting_confirmation";
-      const response = parseConfirmation(text);
-      if (response === "confirm") {
-        await confirmLaunch();
-      } else if (response === "cancel") {
-        await cancelLaunch();
+      if (wasConfirming) {
+        state = "awaiting_confirmation";
+        const response = parseConfirmation(text);
+        if (response === "confirm") {
+          await confirmLaunch();
+        } else if (response === "cancel") {
+          await cancelLaunch();
+        }
+        return;
       }
-      return;
-    }
 
-    await handleOpenAppTranscript(text);
+      await handleOpenAppTranscript(text);
+    } catch {
+      await failListen();
+    }
   }
 
   async function handleOpenAppTranscript(text: string): Promise<void> {
@@ -115,11 +139,13 @@ export function createSession(deps: SessionDeps): Session {
 
   async function handleTranscript(text: string): Promise<void> {
     if (state === "recording") {
+      observeVoiceCommand(text, "open");
       await handleOpenAppTranscript(text);
       return;
     }
 
     if (state === "awaiting_confirmation") {
+      observeVoiceCommand(text, "confirmation");
       const response = parseConfirmation(text);
       if (response === "confirm") {
         await confirmLaunch();

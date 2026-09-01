@@ -6,6 +6,11 @@ describe("parseConfirmation", () => {
     expect(parseConfirmation("sim")).toBe("confirm");
   });
 
+  it("parses Whisper confirmation with punctuation", () => {
+    expect(parseConfirmation("Sim.")).toBe("confirm");
+    expect(parseConfirmation("não!")).toBe("cancel");
+  });
+
   it("parses 'não' as cancel", () => {
     expect(parseConfirmation("não")).toBe("cancel");
   });

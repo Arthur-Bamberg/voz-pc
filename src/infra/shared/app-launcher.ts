@@ -12,6 +12,16 @@ export type CreateAppLauncherOptions = {
   spawn?: SpawnFn;
 };
 
+export const defaultDetachedSpawn: SpawnFn = async (command, args) => {
+  const { spawn: nodeSpawn } = await import("node:child_process");
+  return new Promise((resolve) => {
+    const child = nodeSpawn(command, args, { detached: true, stdio: "ignore" });
+    child.on("error", (error) => resolve({ ok: false, error: error.message }));
+    child.unref();
+    resolve({ ok: true });
+  });
+};
+
 export function resolveLaunchSpec(
   config: VozPcConfig,
   appId: string,
@@ -23,17 +33,7 @@ export function resolveLaunchSpec(
 }
 
 export function createAppLauncher(options: CreateAppLauncherOptions): AppLauncherPort {
-  const spawn =
-    options.spawn ??
-    (async (command, args) => {
-      const { spawn: nodeSpawn } = await import("node:child_process");
-      return new Promise((resolve) => {
-        const child = nodeSpawn(command, args, { detached: true, stdio: "ignore" });
-        child.on("error", (error) => resolve({ ok: false, error: error.message }));
-        child.unref();
-        resolve({ ok: true });
-      });
-    });
+  const spawn = options.spawn ?? defaultDetachedSpawn;
 
   return {
     async launch(appId) {

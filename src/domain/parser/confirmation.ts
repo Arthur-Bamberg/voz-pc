@@ -1,18 +1,11 @@
 import type { ConfirmationResponse } from "../intent.js";
+import { normalizeVoiceText } from "../normalize-voice.js";
 
 const CONFIRM_ALIASES = ["sim", "confirmo", "pode abrir", "ok", "positivo", "isso"];
 const CANCEL_ALIASES = ["nao", "não", "cancela", "cancelar", "negativo", "para"];
 
-function normalize(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .trim();
-}
-
 export function parseConfirmation(text: string): ConfirmationResponse | null {
-  const normalized = normalize(text);
+  const normalized = normalizeVoiceText(text);
 
   if (CONFIRM_ALIASES.includes(normalized)) {
     return "confirm";
