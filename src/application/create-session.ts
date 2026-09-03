@@ -9,12 +9,15 @@ import type {
   TtsPort,
   VoiceCommandObserverPort,
   VoiceCommandRole,
+  IntentAdapterPort,
 } from "../domain/ports.js";
 import type { VozPcConfig } from "../domain/config.js";
 import type { SessionState } from "../domain/fsm.js";
 import { MESSAGES } from "../domain/messages.js";
 import { parseOpenApp } from "../domain/parser/open-app.js";
 import { parseConfirmation } from "../domain/parser/confirmation.js";
+import { listPossibleOpenCommands } from "../domain/possible-open-commands.js";
+import { listPossibleConfirmationCommands } from "../domain/possible-confirmation-commands.js";
 
 export type SessionDeps = {
   config: VozPcConfig;
@@ -26,6 +29,7 @@ export type SessionDeps = {
   timer: TimerPort;
   clock: ClockPort;
   voiceCommandObserver?: VoiceCommandObserverPort;
+  intentAdapter?: IntentAdapterPort;
 };
 
 export type Session = {
@@ -61,6 +65,26 @@ export function createSession(deps: SessionDeps): Session {
     state = "idle";
   }
 
+  function armConfirmationTimer(): void {
+    clearTimer();
+    clearConfirmationTimer = deps.timer.setTimeout(async () => {
+      if (state === "awaiting_confirmation") {
+        await deps.tts.speak(MESSAGES.cancelled);
+        await resetToIdle();
+      }
+    }, deps.config.confirmationTimeoutMs);
+  }
+
+  async function restoreConfirmation(): Promise<void> {
+    if (!pendingAppId) {
+      await failListen();
+      return;
+    }
+    state = "awaiting_confirmation";
+    await deps.tts.speak(MESSAGES.confirmation(getLabel(pendingAppId)));
+    armConfirmationTimer();
+  }
+
   async function failListen(): Promise<void> {
     await resetToIdle();
     await deps.tts.speak(MESSAGES.unknown);
@@ -71,6 +95,10 @@ export function createSession(deps: SessionDeps): Session {
     try {
       await deps.audio.start();
     } catch {
+      if (nextState === "recording_confirmation") {
+        await restoreConfirmation();
+        return;
+      }
       await failListen();
     }
   }
@@ -101,23 +129,64 @@ export function createSession(deps: SessionDeps): Session {
 
       if (wasConfirming) {
         state = "awaiting_confirmation";
-        const response = parseConfirmation(text);
-        if (response === "confirm") {
-          await confirmLaunch();
-        } else if (response === "cancel") {
-          await cancelLaunch();
-        }
+        await applyConfirmationReply(text);
         return;
       }
 
       await handleOpenAppTranscript(text);
     } catch {
+      if (wasConfirming) {
+        await restoreConfirmation();
+        return;
+      }
       await failListen();
     }
   }
 
+  async function applyConfirmationReply(text: string): Promise<void> {
+    let response = parseConfirmation(text);
+
+    if (!response && text.trim() && deps.intentAdapter) {
+      try {
+        const adapted = await deps.intentAdapter.adaptConfirmation(
+          text,
+          listPossibleConfirmationCommands(),
+        );
+        if (adapted === "confirm" || adapted === "cancel") {
+          response = adapted;
+        }
+      } catch {
+        response = null;
+      }
+    }
+
+    if (response === "confirm") {
+      await confirmLaunch();
+    } else if (response === "cancel") {
+      await cancelLaunch();
+    } else {
+      await restoreConfirmation();
+    }
+  }
+
   async function handleOpenAppTranscript(text: string): Promise<void> {
-    const intent = parseOpenApp(text, deps.config.aliases);
+    let intent = parseOpenApp(text, deps.config.aliases);
+
+    if ((!intent || !isAllowed(intent.appId)) && text.trim() && deps.intentAdapter) {
+      try {
+        const appId = await deps.intentAdapter.adaptOpenApp(
+          text,
+          listPossibleOpenCommands(deps.config),
+        );
+        if (appId && isAllowed(appId)) {
+          intent = { type: "open_app", appId };
+        } else {
+          intent = null;
+        }
+      } catch {
+        intent = null;
+      }
+    }
 
     if (!intent || !isAllowed(intent.appId)) {
       await deps.tts.speak(MESSAGES.unknown);
@@ -126,15 +195,7 @@ export function createSession(deps: SessionDeps): Session {
     }
 
     pendingAppId = intent.appId;
-    state = "awaiting_confirmation";
-    await deps.tts.speak(MESSAGES.confirmation(getLabel(intent.appId)));
-
-    clearConfirmationTimer = deps.timer.setTimeout(async () => {
-      if (state === "awaiting_confirmation") {
-        await deps.tts.speak(MESSAGES.cancelled);
-        await resetToIdle();
-      }
-    }, deps.config.confirmationTimeoutMs);
+    await restoreConfirmation();
   }
 
   async function handleTranscript(text: string): Promise<void> {
@@ -146,12 +207,7 @@ export function createSession(deps: SessionDeps): Session {
 
     if (state === "awaiting_confirmation") {
       observeVoiceCommand(text, "confirmation");
-      const response = parseConfirmation(text);
-      if (response === "confirm") {
-        await confirmLaunch();
-      } else if (response === "cancel") {
-        await cancelLaunch();
-      }
+      await applyConfirmationReply(text);
     }
   }
 

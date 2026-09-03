@@ -10,7 +10,7 @@ Agent de desktop por voz que abre apps e confirma por fala. Windows + Fedora, m�
 
 ## Status
 
-**MVP-A fase 1 — loop de voz no Fedora.** Parser + FSM + ports Win/Linux, Whisper.cpp + Piper (download na 1ª run), captura `pw-record` / playback `pw-play`, daemon `pnpm start` (PTT por Espaço ou HTTP). Tauri tray continua stub; cpal entra quando o shell nativo for ligado (D26).
+**MVP-A fase 1 — loop de voz no Fedora.** Parser + FSM + ports Win/Linux, Whisper.cpp + Piper (download na 1ª run), captura `pw-record` / playback `pw-play`, daemon `pnpm start` (PTT por Espaço ou HTTP). Se o parser não fecha, Gemini valida o Comando de voz contra a allowlist ou contra sim/não. Tauri tray continua stub; cpal entra quando o shell nativo for ligado (D26).
 
 ## Comandos
 
@@ -22,6 +22,7 @@ pnpm test:e2e
 pnpm typecheck
 pnpm sidecars:ensure   # baixa Whisper + Piper + modelos (~200 MB) para ~/.config/voz-pc
 pnpm start             # daemon: voz → abrir app da allowlist → confirmação falada
+# cp .env.example .env   # GEMINI_API_KEY para validar erros de fala do Whisper
 ```
 
 ## API pública
@@ -46,7 +47,7 @@ config.default.json
 
 ## Caminho feliz (manual)
 
-1. `pnpm install && pnpm sidecars:ensure` (só na 1ª vez; ~200 MB).
+1. `pnpm install && pnpm sidecars:ensure` (só na 1ª vez; ~200 MB). Opcional: copie `.env.example` para `.env` e coloque a `GEMINI_API_KEY` para adaptar “Abrei o calculador.” → Calculadora.
 2. `pnpm start` — Piper fala “Voz PC pronto.”
 3. Aperte **Espaço**, diga **“abrir calculadora”**, Espaço de novo.
 4. Ouça “Quer abrir Calculadora?” — **Enter** ou fale **“sim”**.

@@ -4,6 +4,7 @@ export function normalizeVoiceText(text: string): string {
     .normalize("NFD")
     .replace(/\p{M}/gu, "")
     .replace(/[.,!?;:]+/g, " ")
+    .replace(/-/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }

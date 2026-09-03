@@ -29,6 +29,14 @@ describe("parseOpenApp", () => {
     expect(parseOpenApp("abrir o chrome!")).toEqual({ type: "open_app", appId: "chrome" });
   });
 
+  it("parses Whisper chrome speech error 'Abri-o de crô, mi.'", () => {
+    expect(parseOpenApp("Abri-o de crô, mi.")).toEqual({ type: "open_app", appId: "chrome" });
+  });
+
+  it("parses Whisper calculator speech error 'Abrei o calculador.'", () => {
+    expect(parseOpenApp("Abrei o calculador.")).toEqual({ type: "open_app", appId: "calculator" });
+  });
+
   it("returns null for unknown app", () => {
     expect(parseOpenApp("abrir spotify")).toBeNull();
   });

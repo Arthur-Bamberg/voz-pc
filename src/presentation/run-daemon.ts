@@ -13,17 +13,66 @@ import { createHotkeyBus } from "../infra/shared/hotkey-bus.js";
 import { startHotkeyServer } from "../infra/shared/http-hotkeys.js";
 import { createFsSidecarDeps, createTempDir } from "../infra/shared/node-fs.js";
 import { createNodeRunCommand } from "../infra/shared/node-run-command.js";
+import { loadProjectEnv } from "../infra/shared/load-env.js";
 import { getAppDataDir } from "../infra/shared/paths.js";
 import { attachStdinHotkeys } from "../infra/shared/stdin-hotkeys.js";
 import { createWhisperStt } from "../infra/shared/stt-whisper.js";
 import { createSystemClock, createSystemTimer } from "../infra/shared/system-clock.js";
 import { createPiperTts } from "../infra/shared/tts-piper.js";
 import { createStdoutVoiceCommandObserver } from "./format-voice-command.js";
+import {
+  createChatIntentAdapter,
+  createGeminiChatComplete,
+  createLoggingChatComplete,
+  createLoggingIntentAdapter,
+  readGeminiApiKey,
+  readGeminiModel,
+  readGeminiThinkingLevel,
+} from "../infra/shared/intent-adapter.js";
+import type { IntentAdapterPort } from "../domain/ports.js";
 
 const HTTP_HOST = "127.0.0.1";
-const HTTP_PORT = Number(process.env.VOZ_PC_PORT ?? 9847);
+
+function createDaemonIntentAdapter(): IntentAdapterPort {
+  const apiKey = readGeminiApiKey();
+  const model = readGeminiModel();
+  const thinkingLevel = readGeminiThinkingLevel();
+  if (!apiKey) {
+    console.log(
+      "IA de adaptação desligada: defina GEMINI_API_KEY no .env para validar typos contra a allowlist e sim/não.",
+    );
+    return {
+      async adaptOpenApp() {
+        return null;
+      },
+      async adaptConfirmation() {
+        return null;
+      },
+    };
+  }
+
+  console.log(
+    `IA de adaptação: Gemini ${model} thinking ${thinkingLevel} (typos de abertura e de sim/não quando o parser não fecha)`,
+  );
+  return createLoggingIntentAdapter(
+    createChatIntentAdapter({
+      complete: createLoggingChatComplete(
+        createGeminiChatComplete({ apiKey, model, thinkingLevel }),
+        (line) => {
+          console.log(line);
+        },
+      ),
+    }),
+    (line) => {
+      console.log(line);
+    },
+  );
+}
 
 async function main(): Promise<void> {
+  await loadProjectEnv();
+  const httpPort = Number(process.env.VOZ_PC_PORT ?? 9847);
+
   if (process.platform === "win32") {
     console.error("Este daemon de fase 1 valida o loop no Fedora. Windows entra no smoke com o mesmo core; áudio ainda é pw-record/pw-play.");
   }
@@ -73,6 +122,7 @@ async function main(): Promise<void> {
     timer: createSystemTimer(),
     clock: createSystemClock(),
     voiceCommandObserver: createStdoutVoiceCommandObserver(),
+    intentAdapter: createDaemonIntentAdapter(),
   });
 
   const togglePtt = createPttToggle({
@@ -82,7 +132,7 @@ async function main(): Promise<void> {
 
   const server = await startHotkeyServer({
     host: HTTP_HOST,
-    port: HTTP_PORT,
+    port: httpPort,
     bus,
     togglePtt,
   });

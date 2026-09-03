@@ -45,3 +45,25 @@ export type TimerPort = {
 export type ClockPort = {
   now: () => number;
 };
+
+export type PossibleOpenCommand = {
+  appId: string;
+  label: string;
+  phrases: string[];
+};
+
+export type PossibleConfirmationCommand = {
+  response: "confirm" | "cancel";
+  phrases: string[];
+};
+
+export type IntentAdapterPort = {
+  adaptOpenApp: (
+    voiceCommand: string,
+    possible: PossibleOpenCommand[],
+  ) => Promise<string | null>;
+  adaptConfirmation: (
+    voiceCommand: string,
+    possible: PossibleConfirmationCommand[],
+  ) => Promise<"confirm" | "cancel" | null>;
+};

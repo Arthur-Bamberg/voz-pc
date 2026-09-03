@@ -1,0 +1,3 @@
+# Parser first, LLM only as speech-error fallback
+
+The MVP-A happy path stays a deterministic parser plus aliases (D9). When that parser does not extract an Intent or a confirmation reply from a non-empty voice command, an optional IntentAdapter asks Gemini to validate the transcript against the possible options (allowlist open commands, or sim/não). The option list is a cached system instruction; only the transcription changes per request. The adapter never launches an app and never skips confirmation. Rejected sending every utterance to an LLM and rejected a local Llama sidecar, because later slices already standardise on Gemini.

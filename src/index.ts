@@ -5,6 +5,8 @@ export type { VozPcConfig, AllowlistEntry, HotkeysConfig, AppLaunchSpec } from "
 
 export { parseOpenApp } from "./domain/parser/open-app.js";
 export { parseConfirmation } from "./domain/parser/confirmation.js";
+export { listPossibleOpenCommands } from "./domain/possible-open-commands.js";
+export { listPossibleConfirmationCommands } from "./domain/possible-confirmation-commands.js";
 
 export type {
   SttPort,
@@ -19,6 +21,9 @@ export type {
   VoiceCommand,
   VoiceCommandRole,
   VoiceCommandObserverPort,
+  PossibleOpenCommand,
+  PossibleConfirmationCommand,
+  IntentAdapterPort,
 } from "./domain/ports.js";
 
 export { createSession } from "./application/create-session.js";
@@ -34,6 +39,19 @@ export { createWindowsAppLauncher } from "./infra/windows/app-launcher.js";
 export { createLinuxAppLauncher } from "./infra/linux/app-launcher.js";
 export { createWhisperStt, parseWhisperTranscript } from "./infra/shared/stt-whisper.js";
 export { createPiperTts } from "./infra/shared/tts-piper.js";
+export {
+  createChatIntentAdapter,
+  createLoggingIntentAdapter,
+  createLoggingChatComplete,
+  createGeminiChatComplete,
+  parseAdaptedAppId,
+  parseAdaptedConfirmation,
+  readGeminiApiKey,
+  readGeminiModel,
+  readGeminiThinkingLevel,
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_THINKING_LEVEL,
+} from "./infra/shared/intent-adapter.js";
 export { ensureSidecars } from "./infra/shared/ensure-sidecars.js";
 export type { SidecarPaths } from "./infra/shared/ensure-sidecars.js";
 export { createLinuxAudioCapture } from "./infra/linux/audio-capture.js";

@@ -7,7 +7,7 @@ Guia para agentes (Cursor) trabalhando neste repositório. Leia isto antes de im
 **voz-pc**: agent de desktop por voz que age no computador. Âncora de produto: acessibilidade para usuária com deficiência visual (mãe do autor).
 
 MVP atual: **MVP-A — “Abrir e confirmar”**  
-Fluxo: PTT → STT → parse `open_app` → TTS pede confirmação → sim/não/timeout → launch → TTS resultado.
+Fluxo: PTT → STT → parse `open_app` (Adaptação se o parser não fecha) → TTS pede confirmação → parse sim/não (Adaptação se o parser não fecha) → launch → TTS resultado.
 
 Programa maior (ordem): A → B (ler tela) → C (ditar/enviar) → D (navegar/clicar) → E (agente + tools ricas).  
 Doc de produto: Notion *MVPs — IA por voz que age no computador*.
@@ -38,7 +38,7 @@ Doc de produto: Notion *MVPs — IA por voz que age no computador*.
 | Captura voz | Push-to-talk (não always-on / wake word) |
 | STT | whisper.cpp (sidecar), modelo inicial `base`, config trocável |
 | TTS | **Piper** local (mesmo motor Win+Linux) — **não** SAPI |
-| Intent | Parser determinístico + aliases (sem LLM no A) |
+| Intent | Parser determinístico + aliases; **Adaptação** (Gemini) só se o parser não fecha |
 | Launch | Allowlist de **IDs lógicos** → resolver por OS → spawn |
 | Config | JSON em dir de dados do app (`dirs`: Win AppData / Linux `~/.config/voz-pc`) + `config.default.json` no repo |
 | Áudio | `cpal` no Rust do Tauri |
@@ -85,9 +85,9 @@ Apps da mãe (WhatsApp etc.) entram na fase 1.1 se necessário.
 
 ### FSM canônica
 
-`Idle → PTT → STT → parse open_app → TTS confirma → (sim|não|timeout 30s) → launch → TTS resultado → Idle`
+`Idle → PTT → STT → parse open_app (Adaptação se o parser não fecha) → TTS confirma → parse sim/não (Adaptação se o parser não fecha) → launch → TTS resultado → Idle`
 
-Confirmação: híbrido fala (`sim`/`não` + aliases) **e** hotkeys.
+Confirmação: híbrido fala (`sim`/`não` + aliases; Adaptação para typo) **e** hotkeys.
 
 ## Estrutura do código
 
@@ -127,11 +127,11 @@ Skills versionadas em `.cursor/skills/` (Cloud Agent e local): `feature-loop`, `
 
 ## Glossário (resumo)
 
-Ver `CONTEXT.md`. Termos canônicos: **Comando de voz**, **Intent**, **Allowlist** (IDs lógicos), **Confirmação**, **PTT**, **Adapter de OS**, **Sidecar**, **Diagnóstico**.
+Ver `CONTEXT.md`. Termos canônicos: **Comando de voz**, **Intent**, **Adaptação**, **Allowlist** (IDs lógicos), **Confirmação**, **PTT**, **Adapter de OS**, **Sidecar**, **Diagnóstico**.
 
 ## O que NÃO fazer neste repo (MVP-A fase 1)
 
-- LLM / agent tools ricas (MVP-E)
+- LLM / agent tools ricas (MVP-E). **Exceção:** Adaptação Gemini só quando o parser não fecha Intent ou aceite/recusa (ADR 0002)
 - Wake word / always-on
 - OCR / a11y tree (MVP-B)
 - Ditar e enviar (MVP-C)

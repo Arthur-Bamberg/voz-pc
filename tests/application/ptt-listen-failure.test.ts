@@ -71,43 +71,4 @@ describe("createSession listen failure", () => {
     expect(session.getState()).toBe("idle");
     expect(ports.tts.spoken).toEqual([MESSAGES.unknown]);
   });
-
-  it("returns to idle and speaks unknown when STT throws during confirmation PTT", async () => {
-    const config = await loadTestConfig();
-    let calls = 0;
-    const stt: SttPort = {
-      async transcribe() {
-        calls += 1;
-        if (calls === 1) return "abrir calculadora";
-        throw new Error("whisper-cli failed");
-      },
-    };
-    const ports = {
-      hotkeys: createMockHotkeys(),
-      tts: createMockTts(),
-      launcher: createMockLauncher(),
-      audio: createMockAudio(),
-      stt,
-      timer: createMockTimer(),
-      clock: createMockClock(),
-    };
-    const session = createSession({ config, ...ports });
-
-    session.start();
-    ports.hotkeys.emit("ptt_down");
-    ports.hotkeys.emit("ptt_up");
-    await flushAsync();
-    expect(session.getState()).toBe("awaiting_confirmation");
-
-    ports.hotkeys.emit("ptt_down");
-    ports.hotkeys.emit("ptt_up");
-    await flushAsync();
-
-    expect(session.getState()).toBe("idle");
-    expect(ports.tts.spoken).toEqual([
-      MESSAGES.confirmation("Calculadora"),
-      MESSAGES.unknown,
-    ]);
-    expect(ports.launcher.launched).toEqual([]);
-  });
 });

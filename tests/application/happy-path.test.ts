@@ -28,6 +28,20 @@ describe("createSession happy path", () => {
     expect(ports.tts.spoken).toContain(MESSAGES.success("Chrome"));
   });
 
+  it("confirms Chrome from Whisper speech error 'Abri-o de crô, mi.'", async () => {
+    const config = await loadTestConfig();
+    const ports = createTestPorts("Abri-o de crô, mi.");
+    const session = createSession({ config, ...ports });
+
+    session.start();
+    ports.hotkeys.emit("ptt_down");
+    ports.hotkeys.emit("ptt_up");
+    await flushAsync();
+
+    expect(session.getState()).toBe("awaiting_confirmation");
+    expect(ports.tts.spoken).toEqual([MESSAGES.confirmation("Chrome")]);
+  });
+
   it("completes open_app flow with Enter hotkey", async () => {
     const config = await loadTestConfig();
     const ports = createTestPorts("abrir firefox");

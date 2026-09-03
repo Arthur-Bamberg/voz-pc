@@ -52,7 +52,7 @@
     }
   },
   "aliases": {
-    "chrome": ["chrome", "google chrome", "google"],
+    "chrome": ["chrome", "google chrome", "google", "crom", "crome", "cromi", "cro"],
     "firefox": ["firefox", "mozilla"],
     "files": ["arquivos", "arquivo", "pastas", "pasta", "explorer", "nautilus"],
     "terminal": ["terminal", "console"],
